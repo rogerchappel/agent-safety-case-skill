@@ -1,0 +1,12 @@
+{
+  "action": "send_slack_message",
+  "target": "release-channel",
+  "intent": "notify maintainers about a release candidate",
+  "evidence": [
+    "tests passed",
+    "PR is open",
+    "branch protection attempted"
+  ],
+  "rollback": "post a correction and close the PR if needed",
+  "approval": "human approval required before sending"
+}
