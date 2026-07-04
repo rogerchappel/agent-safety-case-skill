@@ -13,6 +13,12 @@ npm run smoke
 node bin/cli.js fixtures/send-plan.json --format=json
 ```
 
+Run the full local release gate before opening a release PR:
+
+```bash
+npm run release:check
+```
+
 ## CLI
 
 ```bash
