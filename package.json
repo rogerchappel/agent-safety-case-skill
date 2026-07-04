@@ -9,7 +9,10 @@
   "scripts": {
     "test": "node --test",
     "check": "node scripts/check.js",
-    "smoke": "node bin/cli.js fixtures/send-plan.json"
+    "lint": "npm run check",
+    "smoke": "node bin/cli.js fixtures/send-plan.json",
+    "package:smoke": "npm pack --dry-run",
+    "release:check": "npm run lint && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
     "agent-skill",
@@ -19,6 +22,27 @@
   ],
   "author": "Roger Chappel",
   "license": "MIT",
+  "files": [
+    "bin",
+    "src",
+    "fixtures",
+    "examples",
+    "docs",
+    "SKILL.md",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/agent-safety-case-skill.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/agent-safety-case-skill/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/agent-safety-case-skill#readme",
   "engines": {
     "node": ">=20"
   }
