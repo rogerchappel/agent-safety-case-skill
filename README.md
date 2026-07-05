@@ -10,6 +10,7 @@ This is a local-first agent skill package. It reads local fixtures, produces rev
 npm install
 npm test
 npm run smoke
+node bin/cli.js --help
 node bin/cli.js fixtures/send-plan.json --format=json
 ```
 
