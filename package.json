@@ -11,7 +11,7 @@
     "check": "node scripts/check.js",
     "lint": "npm run check",
     "smoke": "node bin/cli.js --help && node bin/cli.js fixtures/send-plan.json",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "node scripts/verify-package-bin.mjs && npm pack --dry-run",
     "release:check": "npm run lint && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
