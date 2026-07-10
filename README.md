@@ -20,6 +20,10 @@ Run the full local release gate before opening a release PR:
 npm run release:check
 ```
 
+`npm run release:readiness` verifies package metadata, CLI bin metadata,
+support docs, fixtures, examples, CI presence, and the npm files allowlist.
+`npm run package:smoke` verifies the bin target and dry-run tarball contents.
+
 ## CLI
 
 ```bash

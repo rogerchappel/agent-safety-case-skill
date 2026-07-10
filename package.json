@@ -12,7 +12,8 @@
     "lint": "npm run check",
     "smoke": "node bin/cli.js --help && node bin/cli.js fixtures/send-plan.json",
     "package:smoke": "node scripts/verify-package-bin.mjs && npm pack --dry-run",
-    "release:check": "npm run lint && npm test && npm run smoke && npm run package:smoke"
+    "release:readiness": "node scripts/validate-release-readiness.mjs",
+    "release:check": "npm run release:readiness && npm run lint && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
     "agent-skill",
