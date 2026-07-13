@@ -24,6 +24,18 @@ npm run release:check
 support docs, fixtures, examples, CI presence, and the npm files allowlist.
 `npm run package:smoke` verifies the bin target and dry-run tarball contents.
 
+## Verification
+
+Run the same checks used for release-readiness before publishing or opening a release PR:
+
+```bash
+npm run check
+npm test
+npm run smoke
+npm run release:check
+npm pack --dry-run
+```
+
 ## CLI
 
 ```bash
