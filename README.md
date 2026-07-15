@@ -61,3 +61,7 @@ node bin/cli.js fixtures/send-plan.json --format=json
 - V1 uses deterministic fixture parsing and conservative warning terms.
 - It is designed for small local plans and run notes, not full transcript warehouses.
 - Human review is still required before public reuse or external action.
+
+## Release notes
+
+Before tagging a release, confirm the smoke fixture still represents the intended workflow and summarize any changed output, limitations, or operator steps in the PR.
