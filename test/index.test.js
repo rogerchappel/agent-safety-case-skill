@@ -46,7 +46,8 @@ test('does not treat benign substrings as external actions', () => {
   const result = analyzeText([
     'Action: summarize newsletter content',
     'Intent: describe payment-free options and writable formats',
-    'Target: local notes'
+    'Target: local notes',
+    'Context: publisher and sender metadata for undeleted drafts'
   ].join('\n'));
 
   assert.deepEqual(result.warnings, []);
