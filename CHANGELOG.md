@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Parse emphasized Markdown fields and recognize human-readable external send
+  actions without matching benign substrings.
 - Add release-readiness checks for package metadata, pack contents, and CI verification.
 ## 0.1.0
 

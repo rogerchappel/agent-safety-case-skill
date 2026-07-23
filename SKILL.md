@@ -20,6 +20,17 @@ The CLI drafts an approval artifact only. It does not grant approval, call exter
 - Human approval is required before copying generated material into public docs when the input may contain private context.
 - Separate approval is required before any external send, publish, account write, or live connector call.
 
+## Analyzer Boundary
+
+- Supported fields are `Action`, `Target`, `Intent`, `Rollback`, and
+  `Approval` in top-level JSON or line-oriented Markdown/text.
+- Human-readable send actions such as `send email`, `send a message`, and
+  snake-case variants produce a review warning.
+- Warning matching is token-aware, so descriptive words such as `sender` or
+  `writable` do not produce action warnings.
+- Results are review prompts. The analyzer does not establish approval,
+  interpret negation, or prove that a target is external.
+
 ## Workflow
 
 1. Run `agent-safety-case <file>`.
