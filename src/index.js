@@ -15,6 +15,26 @@ const WARNING_PATTERNS = [
     'send',
     /\bsend(?:s|ing)?(?:[ \t]+(?:an?|the))?(?:[ \t]+[a-z0-9]+){0,2}[ \t]+(?:email|message|notification|invite|file|report|request|data|payload)\b/i
   ],
+  [
+    'email',
+    /\bemail(?:s|ed|ing)?[ \t]+(?:an?|the|our|your|their)?[ \t]*(?:customer|client|user|recipient|team|maintainer|vendor|owner|contact)s?\b/i
+  ],
+  [
+    'message',
+    /\bmessage(?:s|d|ing)?[ \t]+(?:an?|the|our|your|their)?[ \t]*(?:customer|client|user|recipient|team|maintainer|vendor|owner|contact)s?\b/i
+  ],
+  [
+    'post',
+    /\bpost(?:s|ed|ing)?[ \t]+(?:an?|the|our|your|their)?[ \t]*(?:message|announcement|update|comment|reply|notification|report|file|data|payload)\b/i
+  ],
+  [
+    'upload',
+    /\bupload(?:s|ed|ing)?[ \t]+(?:an?|the|our|your|their)?[ \t]*(?:report|file|document|artifact|attachment|image|video|data|payload|archive|package)\b/i
+  ],
+  [
+    'deploy',
+    /\bdeploy(?:s|ed|ing)?[ \t]+(?:an?|the|our|your|their)?[ \t]*(?:release|application|app|service|site|website|build|artifact|package|code|change|update)\b/i
+  ],
   ['write', /\b(?:write|writes|writing|written)\b/i],
   [
     'payment',
