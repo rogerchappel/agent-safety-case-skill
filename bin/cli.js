@@ -2,17 +2,44 @@
 import { buildSafetyCase, toMarkdown } from '../src/index.js';
 
 const args = process.argv.slice(2);
+const usage = 'Usage: agent-safety-case <file> [--format=markdown|json] [--json]';
+
 if (args.includes('--help')) {
-  console.log('Usage: agent-safety-case <file> [--format=json]');
+  console.log(usage);
   process.exit(0);
 }
 
-const file = args.find((arg) => !arg.startsWith('--'));
-const format = args.includes('--format=json') || args.includes('--json') ? 'json' : 'markdown';
+let file;
+let format = 'markdown';
+
+for (const arg of args) {
+  if (arg === '--json') {
+    format = 'json';
+  } else if (arg.startsWith('--format=')) {
+    const value = arg.slice('--format='.length);
+    if (!['markdown', 'json'].includes(value)) {
+      console.error(`agent-safety-case: unsupported format '${value}'`);
+      console.error('Supported formats: markdown, json');
+      console.error(usage);
+      process.exit(2);
+    }
+    format = value;
+  } else if (arg.startsWith('--')) {
+    console.error(`agent-safety-case: unknown option '${arg}'`);
+    console.error(usage);
+    process.exit(2);
+  } else if (file) {
+    console.error(`agent-safety-case: unexpected argument '${arg}'`);
+    console.error(usage);
+    process.exit(2);
+  } else {
+    file = arg;
+  }
+}
 
 if (!file) {
-  console.log('Usage: agent-safety-case <file> [--format=json]');
-  process.exit(1);
+  console.error(usage);
+  process.exit(2);
 }
 
 try {
