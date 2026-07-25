@@ -54,6 +54,44 @@ test('does not treat benign substrings as external actions', () => {
   assert.equal(result.risk, 'low');
 });
 
+test('reviews common imperative external side effects in deterministic order', () => {
+  const result = analyzeText([
+    'Action: deploy_the_release, then upload-the-report',
+    'Intent: post a message to Slack and email the customer'
+  ].join('\n'));
+
+  assert.deepEqual(result.warnings, ['email', 'post', 'upload', 'deploy']);
+  assert.equal(result.risk, 'high');
+});
+
+test('reviews direct message actions and common verb inflections', () => {
+  const examples = [
+    ['Action: messaged the customer', 'message'],
+    ['Action: emailing a client', 'email'],
+    ['Action: posted the announcement', 'post'],
+    ['Action: uploading the report', 'upload'],
+    ['Action: deployed the release', 'deploy']
+  ];
+
+  for (const [input, expectedWarning] of examples) {
+    const result = analyzeText(input);
+    assert.deepEqual(result.warnings, [expectedWarning], input);
+    assert.equal(result.risk, 'review', input);
+  }
+});
+
+test('does not treat side-effect nouns or policy prose as actions', () => {
+  const result = analyzeText([
+    'Action: summarize the deployment guide',
+    'Intent: compare email policy and message retention',
+    'Target: upload limits and blog post metadata',
+    'Context: the customer deployment was completed previously'
+  ].join('\n'));
+
+  assert.deepEqual(result.warnings, []);
+  assert.equal(result.risk, 'low');
+});
+
 test('prints usage help', () => {
   const output = execFileSync('node', ['bin/cli.js', '--help'], { encoding: 'utf8' });
   assert.match(output, /Usage: agent-safety-case/);
