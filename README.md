@@ -71,14 +71,23 @@ field syntax, quotes, and Markdown emphasis.
 Warnings use action-shaped, token-aware patterns. They recognize the existing
 delete, publish, write, and payment-action families, plus human-readable send
 actions such as `send email`, `send a message`, and `send_slack_message`.
+Common imperative email, direct-message, post, upload, and deploy actions are
+also recognized when paired with an action-specific target, including
+`email the customer`, `post a message`, `upload_the_report`, and
+`deploy-the-release`. Warning order is fixed by family rather than input order,
+so identical warning families always produce identical risk and output.
 Words that merely contain a warning term, such as `sender`, `publisher`,
-`undeleted`, or `writable`, are not actions. One or two distinct warning
-families produce `review` risk; three or more produce `high` risk.
+`undeleted`, or `writable`, and related nouns such as `email policy`,
+`deployment guide`, or `blog post metadata`, are not actions. One or two
+distinct warning families produce `review` risk; three or more produce `high`
+risk.
 
 ## Limitations
 
 - V1 uses deterministic parsing and does not infer intent, negation, approval,
   or whether a named target is actually external.
+- Action matching intentionally uses a finite verb-and-target vocabulary. Novel
+  verbs, uncommon targets, and indirect phrasing may not produce a warning.
 - It is designed for small local plans and run notes, not full transcript warehouses.
 - Human review is still required before public reuse or external action.
 
