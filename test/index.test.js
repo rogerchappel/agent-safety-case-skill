@@ -58,7 +58,7 @@ test('prints usage help', () => {
   const output = execFileSync('node', ['bin/cli.js', '--help'], { encoding: 'utf8' });
   assert.match(output, /Usage: agent-safety-case/);
   assert.match(output, /<file>/);
-  assert.match(output, /--format=json/);
+  assert.match(output, /--format=markdown\|json/);
 });
 
 test('CLI preserves Markdown and JSON output modes', () => {
