@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { analyzeText, buildSafetyCase, toMarkdown } from '../src/index.js';
 
 test('analyzes fixture into structured result', () => {
@@ -59,4 +59,34 @@ test('prints usage help', () => {
   assert.match(output, /Usage: agent-safety-case/);
   assert.match(output, /<file>/);
   assert.match(output, /--format=json/);
+});
+
+test('CLI preserves Markdown and JSON output modes', () => {
+  const markdown = spawnSync('node', ['bin/cli.js', 'fixtures/send-plan.json'], { encoding: 'utf8' });
+  assert.equal(markdown.status, 0);
+  assert.match(markdown.stdout, /^# Agent Safety Case/m);
+  assert.equal(markdown.stderr, '');
+
+  for (const option of ['--format=json', '--json']) {
+    const json = spawnSync('node', ['bin/cli.js', 'fixtures/send-plan.json', option], { encoding: 'utf8' });
+    assert.equal(json.status, 0);
+    assert.equal(JSON.parse(json.stdout).title, 'Agent Safety Case');
+    assert.equal(json.stderr, '');
+  }
+});
+
+test('CLI rejects unsupported options with a usage error', () => {
+  const result = spawnSync('node', ['bin/cli.js', 'fixtures/send-plan.json', '--verbose'], { encoding: 'utf8' });
+  assert.equal(result.status, 2);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /^agent-safety-case: unknown option '--verbose'\n/);
+  assert.match(result.stderr, /Usage: agent-safety-case/);
+});
+
+test('CLI rejects unsupported format values with a usage error', () => {
+  const result = spawnSync('node', ['bin/cli.js', 'fixtures/send-plan.json', '--format=yaml'], { encoding: 'utf8' });
+  assert.equal(result.status, 2);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /^agent-safety-case: unsupported format 'yaml'\n/);
+  assert.match(result.stderr, /Supported formats: markdown, json/);
 });
