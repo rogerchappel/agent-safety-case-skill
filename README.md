@@ -74,13 +74,16 @@ actions such as `send email`, `send a message`, and `send_slack_message`.
 Common imperative email, direct-message, post, upload, and deploy actions are
 also recognized when paired with an action-specific target, including
 `email the customer`, `post a message`, `upload_the_report`, and
-`deploy-the-release`. Warning order is fixed by family rather than input order,
-so identical warning families always produce identical risk and output.
+`deploy-the-release`. Pull-request merge actions (`merge PR #42`) and public
+repository creation actions (`create a public repository`) are recognized too.
+Warning order is fixed by family rather than input order, so identical warning
+families always produce identical risk and output.
 Words that merely contain a warning term, such as `sender`, `publisher`,
 `undeleted`, or `writable`, and related nouns such as `email policy`,
-`deployment guide`, or `blog post metadata`, are not actions. One or two
-distinct warning families produce `review` risk; three or more produce `high`
-risk.
+`deployment guide`, `pull request merge policy`, or `repository creation
+requirements`, are not actions. Completed-history phrases such as `was merged`
+and `was created` are also excluded. One or two distinct warning families
+produce `review` risk; three or more produce `high` risk.
 
 ## Limitations
 
