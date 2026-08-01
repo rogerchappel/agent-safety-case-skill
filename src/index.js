@@ -12,6 +12,14 @@ const WARNING_PATTERNS = [
   ['delete', /\bdelete(?:s|d|ing)?\b/i],
   ['publish', /\bpublish(?:es|ed|ing)?\b/i],
   [
+    'merge',
+    /\b(?:merge|merges|merging)[ \t]+(?:(?:an?|the)[ \t]+)?(?:pull[ \t]+request|pr)\b(?:[ \t]+#?\d+)?/i
+  ],
+  [
+    'repository creation',
+    /\bcreat(?:e|es|ing)[ \t]+(?:(?:an?|the|new)[ \t]+)?public[ \t]+(?:repository|repo)\b/i
+  ],
+  [
     'send',
     /\bsend(?:s|ing)?(?:[ \t]+(?:an?|the))?(?:[ \t]+[a-z0-9]+){0,2}[ \t]+(?:email|message|notification|invite|file|report|request|data|payload)\b/i
   ],

@@ -92,6 +92,50 @@ test('does not treat side-effect nouns or policy prose as actions', () => {
   assert.equal(result.risk, 'low');
 });
 
+test('reviews pull-request merge and public repository creation actions', () => {
+  const examples = [
+    ['Action: merge the pull request', 'merge'],
+    ['Action: merging PR #42 after approval', 'merge'],
+    ['Action: create a public repository', 'repository creation'],
+    ['Action: creating the public repo for the project', 'repository creation']
+  ];
+
+  for (const [input, expectedWarning] of examples) {
+    const result = analyzeText(input);
+    assert.deepEqual(result.warnings, [expectedWarning], input);
+    assert.equal(result.risk, 'review', input);
+  }
+});
+
+test('does not review merge and repository nouns, policy, or history prose', () => {
+  const result = analyzeText([
+    'Action: summarize pull request merge policy',
+    'Intent: document public repository creation requirements',
+    'Context: PR #42 was merged and the public repo was created yesterday'
+  ].join('\n'));
+
+  assert.deepEqual(result.warnings, []);
+  assert.equal(result.risk, 'low');
+});
+
+test('renders new external-action warnings and non-low risk deterministically', () => {
+  const result = analyzeText([
+    'Action: create a public repository, then merge PR #42',
+    'Approval: required'
+  ].join('\n'));
+
+  assert.deepEqual(result.warnings, ['merge', 'repository creation']);
+  assert.equal(result.risk, 'review');
+  assert.match(toMarkdown(result), /Risk: review/);
+  assert.match(toMarkdown(result), /Review term: merge/);
+  assert.match(toMarkdown(result), /Review term: repository creation/);
+  assert.deepEqual(JSON.parse(JSON.stringify(result)).warnings, [
+    'merge',
+    'repository creation'
+  ]);
+  assert.equal(JSON.parse(JSON.stringify(result)).risk, 'review');
+});
+
 test('prints usage help', () => {
   const output = execFileSync('node', ['bin/cli.js', '--help'], { encoding: 'utf8' });
   assert.match(output, /Usage: agent-safety-case/);

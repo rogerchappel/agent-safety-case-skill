@@ -26,6 +26,9 @@ The CLI drafts an approval artifact only. It does not grant approval, call exter
   `Approval` in top-level JSON or line-oriented Markdown/text.
 - Human-readable send actions such as `send email`, `send a message`, and
   snake-case variants produce a review warning.
+- Imperative pull-request merge actions such as `merge PR #42` and public
+  repository creation actions such as `create a public repository` produce a
+  review warning. Policy nouns and completed-history prose do not.
 - Warning matching is token-aware, so descriptive words such as `sender` or
   `writable` do not produce action warnings.
 - Results are review prompts. The analyzer does not establish approval,
