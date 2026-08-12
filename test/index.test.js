@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { analyzeText, buildSafetyCase, toMarkdown } from '../src/index.js';
 
@@ -13,6 +14,56 @@ test('analyzes fixture into structured result', () => {
 test('flags configured review terms', () => {
   const result = analyzeText('Task: demo\nThis contains delete');
   assert.ok(result.warnings.includes('delete'));
+});
+
+test('reports deterministic completeness for absent and blank fields', () => {
+  const cases = [
+    ['', ['Action', 'Target', 'Intent', 'Rollback', 'Approval'], []],
+    ['Notes: inspect locally', ['Action', 'Target', 'Intent', 'Rollback', 'Approval'], []],
+    ['{}', ['Action', 'Target', 'Intent', 'Rollback', 'Approval'], []],
+    ['{"Action":"","Target":"   "}', ['Intent', 'Rollback', 'Approval'], ['Action', 'Target']]
+  ];
+
+  for (const [input, missingFields, blankFields] of cases) {
+    const result = analyzeText(input);
+    assert.deepEqual(result.completeness, {
+      complete: false,
+      missingFields,
+      blankFields
+    }, input);
+    assert.equal(result.risk, 'review', input);
+    for (const field of missingFields) assert.equal(result.fields[field], 'Not found', input);
+    for (const field of blankFields) assert.equal(result.fields[field], 'Blank', input);
+  }
+});
+
+test('keeps a complete low-risk local plan low risk', () => {
+  const result = analyzeText([
+    'Action: inspect configuration',
+    'Target: local fixture',
+    'Intent: verify deterministic output',
+    'Rollback: discard local notes',
+    'Approval: not required for local read'
+  ].join('\n'));
+
+  assert.deepEqual(result.completeness, {
+    complete: true,
+    missingFields: [],
+    blankFields: []
+  });
+  assert.deepEqual(result.warnings, []);
+  assert.equal(result.risk, 'low');
+});
+
+test('renders completeness diagnostics in Markdown', () => {
+  const markdown = toMarkdown(analyzeText('{"Action":"","Target":"local file"}'));
+
+  assert.match(markdown, /Risk: review/);
+  assert.match(markdown, /- Action: Blank/);
+  assert.match(markdown, /## Completeness/);
+  assert.match(markdown, /- Complete: no/);
+  assert.match(markdown, /- Missing fields: Intent, Rollback, Approval/);
+  assert.match(markdown, /- Blank fields: Action/);
 });
 
 test('parses Markdown fields and reviews a send email action', () => {
@@ -154,6 +205,28 @@ test('CLI preserves Markdown and JSON output modes', () => {
     assert.equal(json.status, 0);
     assert.equal(JSON.parse(json.stdout).title, 'Agent Safety Case');
     assert.equal(json.stderr, '');
+  }
+});
+
+test('CLI reports incomplete empty, prose-only, and JSON fixtures', () => {
+  const fixtures = ['', 'Notes: inspect locally', '{}', '{"Action":"","Target":""}'];
+
+  for (const [index, content] of fixtures.entries()) {
+    const file = `/tmp/agent-safety-case-incomplete-${process.pid}-${index}.txt`;
+    try {
+      fs.writeFileSync(file, content);
+      const json = spawnSync('node', ['bin/cli.js', file, '--json'], { encoding: 'utf8' });
+      assert.equal(json.status, 0, content);
+      assert.equal(JSON.parse(json.stdout).completeness.complete, false, content);
+      assert.equal(JSON.parse(json.stdout).risk, 'review', content);
+
+      const markdown = spawnSync('node', ['bin/cli.js', file], { encoding: 'utf8' });
+      assert.equal(markdown.status, 0, content);
+      assert.match(markdown.stdout, /## Completeness/, content);
+      assert.match(markdown.stdout, /Risk: review/, content);
+    } finally {
+      fs.rmSync(file, { force: true });
+    }
   }
 });
 
