@@ -98,6 +98,8 @@ test('does not treat benign substrings as external actions', () => {
     'Action: summarize newsletter content',
     'Intent: describe payment-free options and writable formats',
     'Target: local notes',
+    'Rollback: discard the notes',
+    'Approval: not required for local read',
     'Context: publisher and sender metadata for undeleted drafts'
   ].join('\n'));
 
@@ -136,6 +138,8 @@ test('does not treat side-effect nouns or policy prose as actions', () => {
     'Action: summarize the deployment guide',
     'Intent: compare email policy and message retention',
     'Target: upload limits and blog post metadata',
+    'Rollback: discard the summary',
+    'Approval: not required for local read',
     'Context: the customer deployment was completed previously'
   ].join('\n'));
 
@@ -162,6 +166,9 @@ test('does not review merge and repository nouns, policy, or history prose', () 
   const result = analyzeText([
     'Action: summarize pull request merge policy',
     'Intent: document public repository creation requirements',
+    'Target: local notes',
+    'Rollback: discard the notes',
+    'Approval: not required for local read',
     'Context: PR #42 was merged and the public repo was created yesterday'
   ].join('\n'));
 
