@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Distinguish missing and blank safety-case fields, expose deterministic
+  completeness diagnostics in JSON and Markdown, and prevent incomplete
+  artifacts from being reported as low risk.
 - Parse emphasized Markdown fields and recognize human-readable external send
   actions without matching benign substrings.
 - Recognize imperative pull-request merge and public repository creation
