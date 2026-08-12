@@ -24,6 +24,9 @@ The CLI drafts an approval artifact only. It does not grant approval, call exter
 
 - Supported fields are `Action`, `Target`, `Intent`, `Rollback`, and
   `Approval` in top-level JSON or line-oriented Markdown/text.
+- A result is complete only when all five supported fields have non-blank
+  values. Absent fields are `Not found`; present empty, whitespace-only, or
+  JSON `null` fields are `Blank`. Both states are listed in JSON and Markdown.
 - Human-readable send actions such as `send email`, `send a message`, and
   snake-case variants produce a review warning.
 - Imperative pull-request merge actions such as `merge PR #42` and public
@@ -33,6 +36,8 @@ The CLI drafts an approval artifact only. It does not grant approval, call exter
   `writable` do not produce action warnings.
 - Results are review prompts. The analyzer does not establish approval,
   interpret negation, or prove that a target is external.
+- Incomplete results have at least `review` risk. Only complete results without
+  warning terms can be reported as `low` risk.
 
 ## Workflow
 

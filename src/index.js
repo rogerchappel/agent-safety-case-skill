@@ -56,6 +56,7 @@ export function readInput(file) {
 
 export function analyzeText(text) {
   const fields = extractFields(text);
+  const completeness = assessCompleteness(fields);
   const normalizedText = text.replace(/[_-]+/g, ' ');
   const warnings = WARNING_PATTERNS
     .filter(([, pattern]) => pattern.test(normalizedText))
@@ -63,8 +64,9 @@ export function analyzeText(text) {
   return {
     title: 'Agent Safety Case',
     fields,
+    completeness,
     warnings,
-    risk: warnings.length === 0 ? 'low' : warnings.length < 3 ? 'review' : 'high',
+    risk: warnings.length >= 3 ? 'high' : warnings.length > 0 || !completeness.complete ? 'review' : 'low',
     nextSteps: [
       'Review warnings before reuse',
       'Confirm fixture coverage',
@@ -82,6 +84,10 @@ export function toMarkdown(result) {
   for (const [key, value] of Object.entries(result.fields)) {
     lines.push('- ' + key + ': ' + value);
   }
+  lines.push('', '## Completeness');
+  lines.push('- Complete: ' + (result.completeness.complete ? 'yes' : 'no'));
+  lines.push('- Missing fields: ' + formatFieldList(result.completeness.missingFields));
+  lines.push('- Blank fields: ' + formatFieldList(result.completeness.blankFields));
   lines.push('', '## Warnings');
   if (result.warnings.length === 0) {
     lines.push('- None');
@@ -94,6 +100,7 @@ export function toMarkdown(result) {
 }
 
 function clean(value) {
+  if (value === null) return '';
   return String(value)
     .trim()
     .replace(/^(?:\*\*|__)\s*/, '')
@@ -108,10 +115,13 @@ function extractFields(text) {
   const fields = {};
 
   for (const label of FIELD_LABELS) {
-    const jsonValue = jsonFields.get(label.toLowerCase());
-    fields[label] = jsonValue === undefined
-      ? extractLineField(text, label)
-      : clean(jsonValue);
+    const key = label.toLowerCase();
+    const rawValue = jsonFields.has(key)
+      ? jsonFields.get(key)
+      : extractLineField(text, label);
+    fields[label] = rawValue === undefined
+      ? 'Not found'
+      : clean(rawValue) || 'Blank';
   }
 
   return fields;
@@ -133,13 +143,27 @@ function parseJsonFields(text) {
 
 function extractLineField(text, label) {
   const fieldPattern = new RegExp(
-    `^\\s*(?:[-*+]\\s+)?(?:\\*\\*|__)?["']?${label}["']?(?:\\*\\*|__)?\\s*[:=]\\s*(?:\\*\\*|__)?\\s*(.+?)\\s*$`,
+    `^\\s*(?:[-*+]\\s+)?(?:\\*\\*|__)?["']?${label}["']?(?:\\*\\*|__)?\\s*[:=]\\s*(?:\\*\\*|__)?\\s*(.*?)\\s*$`,
     'i'
   );
 
   for (const line of text.split(/\r?\n/)) {
     const match = line.match(fieldPattern);
-    if (match?.[1]) return clean(match[1]);
+    if (match) return match[1];
   }
-  return 'Not found';
+  return undefined;
+}
+
+function assessCompleteness(fields) {
+  const missingFields = FIELD_LABELS.filter((label) => fields[label] === 'Not found');
+  const blankFields = FIELD_LABELS.filter((label) => fields[label] === 'Blank');
+  return {
+    complete: missingFields.length === 0 && blankFields.length === 0,
+    missingFields,
+    blankFields
+  };
+}
+
+function formatFieldList(fields) {
+  return fields.length === 0 ? 'None' : fields.join(', ');
 }

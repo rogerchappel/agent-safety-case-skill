@@ -68,6 +68,13 @@ from top-level JSON properties or line-oriented text. Text labels may be plain
 (`- **Action:** send email`). Extracted values are normalized by removing
 field syntax, quotes, and Markdown emphasis.
 
+Completeness is deterministic across both input formats. A supported field
+whose key or label is absent is rendered as `Not found`; a present field whose
+value is empty, whitespace-only, or JSON `null` is rendered as `Blank`. JSON
+results include `completeness.complete`, `missingFields`, and `blankFields`,
+and Markdown reports include the same information in a Completeness section.
+All five supported fields must contain a value for a report to be complete.
+
 Warnings use action-shaped, token-aware patterns. They recognize the existing
 delete, publish, write, and payment-action families, plus human-readable send
 actions such as `send email`, `send a message`, and `send_slack_message`.
@@ -84,6 +91,8 @@ Words that merely contain a warning term, such as `sender`, `publisher`,
 requirements`, are not actions. Completed-history phrases such as `was merged`
 and `was created` are also excluded. One or two distinct warning families
 produce `review` risk; three or more produce `high` risk.
+An incomplete report has at least `review` risk even when it has no warning
+terms. A complete local plan with no warning terms remains `low` risk.
 
 ## Limitations
 
