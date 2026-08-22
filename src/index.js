@@ -88,6 +88,7 @@ export function toMarkdown(result) {
   lines.push('- Complete: ' + (result.completeness.complete ? 'yes' : 'no'));
   lines.push('- Missing fields: ' + formatFieldList(result.completeness.missingFields));
   lines.push('- Blank fields: ' + formatFieldList(result.completeness.blankFields));
+  lines.push('- Invalid fields: ' + formatInvalidFields(result.completeness.invalidFields));
   lines.push('', '## Warnings');
   if (result.warnings.length === 0) {
     lines.push('- None');
@@ -121,7 +122,9 @@ function extractFields(text) {
       : extractLineField(text, label);
     fields[label] = rawValue === undefined
       ? 'Not found'
-      : clean(rawValue) || 'Blank';
+      : invalidJsonType(rawValue)
+        ? `Invalid type: ${jsonType(rawValue)}`
+        : clean(rawValue) || 'Blank';
   }
 
   return fields;
@@ -157,13 +160,31 @@ function extractLineField(text, label) {
 function assessCompleteness(fields) {
   const missingFields = FIELD_LABELS.filter((label) => fields[label] === 'Not found');
   const blankFields = FIELD_LABELS.filter((label) => fields[label] === 'Blank');
+  const invalidFields = FIELD_LABELS
+    .filter((label) => fields[label].startsWith('Invalid type: '))
+    .map((field) => ({ field, type: fields[field].slice('Invalid type: '.length) }));
   return {
-    complete: missingFields.length === 0 && blankFields.length === 0,
+    complete: missingFields.length === 0 && blankFields.length === 0 && invalidFields.length === 0,
     missingFields,
-    blankFields
+    blankFields,
+    invalidFields
   };
+}
+
+function invalidJsonType(value) {
+  return value !== null && typeof value !== 'string';
+}
+
+function jsonType(value) {
+  return Array.isArray(value) ? 'array' : typeof value;
 }
 
 function formatFieldList(fields) {
   return fields.length === 0 ? 'None' : fields.join(', ');
+}
+
+function formatInvalidFields(fields) {
+  return fields.length === 0
+    ? 'None'
+    : fields.map(({ field, type }) => `${field} (${type})`).join(', ');
 }

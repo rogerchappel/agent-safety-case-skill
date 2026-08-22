@@ -27,6 +27,10 @@ The CLI drafts an approval artifact only. It does not grant approval, call exter
 - A result is complete only when all five supported fields have non-blank
   values. Absent fields are `Not found`; present empty, whitespace-only, or
   JSON `null` fields are `Blank`. Both states are listed in JSON and Markdown.
+- Top-level JSON field values accept strings and `null`. Objects, arrays,
+  booleans, and numbers are invalid evidence: the result reports each field and
+  value type, remains incomplete, and cannot be `low` risk. Markdown and text
+  field values remain supported strings.
 - Human-readable send actions such as `send email`, `send a message`, and
   snake-case variants produce a review warning.
 - Imperative pull-request merge actions such as `merge PR #42` and public
