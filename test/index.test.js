@@ -37,6 +37,52 @@ test('reports deterministic completeness for absent and blank fields', () => {
   }
 });
 
+test('rejects non-string JSON field values with deterministic diagnostics', () => {
+  const rejected = [
+    ['Action', { kind: 'inspect' }, 'object'],
+    ['Target', ['local fixture'], 'array'],
+    ['Intent', true, 'boolean'],
+    ['Rollback', 42, 'number'],
+    ['Approval', { required: false }, 'object']
+  ];
+
+  for (const [field, value, type] of rejected) {
+    const input = JSON.stringify({
+      Action: 'inspect configuration',
+      Target: 'local fixture',
+      Intent: 'verify deterministic output',
+      Rollback: 'discard local notes',
+      Approval: 'not required for local read',
+      [field]: value
+    });
+    const result = analyzeText(input);
+
+    assert.equal(result.fields[field], `Invalid type: ${type}`, field);
+    assert.deepEqual(result.completeness.invalidFields, [{ field, type }], field);
+    assert.equal(result.completeness.complete, false, field);
+    assert.notEqual(result.risk, 'low', field);
+  }
+});
+
+test('accepts string field values in JSON and Markdown', () => {
+  const expected = {
+    Action: 'inspect configuration',
+    Target: 'local fixture',
+    Intent: 'verify deterministic output',
+    Rollback: 'discard local notes',
+    Approval: 'not required for local read'
+  };
+  const markdown = Object.entries(expected).map(([key, value]) => `- **${key}:** ${value}`).join('\n');
+
+  for (const input of [JSON.stringify(expected), markdown]) {
+    const result = analyzeText(input);
+    assert.deepEqual(result.fields, expected);
+    assert.deepEqual(result.completeness.invalidFields, []);
+    assert.equal(result.completeness.complete, true);
+    assert.equal(result.risk, 'low');
+  }
+});
+
 test('keeps a complete low-risk local plan low risk', () => {
   const result = analyzeText([
     'Action: inspect configuration',
@@ -64,6 +110,15 @@ test('renders completeness diagnostics in Markdown', () => {
   assert.match(markdown, /- Complete: no/);
   assert.match(markdown, /- Missing fields: Intent, Rollback, Approval/);
   assert.match(markdown, /- Blank fields: Action/);
+  assert.match(markdown, /- Invalid fields: None/);
+});
+
+test('renders invalid JSON field diagnostics in Markdown', () => {
+  const markdown = toMarkdown(analyzeText('{"Action":{"kind":"send"}}'));
+
+  assert.match(markdown, /Risk: review/);
+  assert.match(markdown, /- Action: Invalid type: object/);
+  assert.match(markdown, /- Invalid fields: Action \(object\)/);
 });
 
 test('parses Markdown fields and reviews a send email action', () => {
