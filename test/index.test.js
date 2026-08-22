@@ -29,7 +29,8 @@ test('reports deterministic completeness for absent and blank fields', () => {
     assert.deepEqual(result.completeness, {
       complete: false,
       missingFields,
-      blankFields
+      blankFields,
+      invalidFields: []
     }, input);
     assert.equal(result.risk, 'review', input);
     for (const field of missingFields) assert.equal(result.fields[field], 'Not found', input);
@@ -95,7 +96,8 @@ test('keeps a complete low-risk local plan low risk', () => {
   assert.deepEqual(result.completeness, {
     complete: true,
     missingFields: [],
-    blankFields: []
+    blankFields: [],
+    invalidFields: []
   });
   assert.deepEqual(result.warnings, []);
   assert.equal(result.risk, 'low');
