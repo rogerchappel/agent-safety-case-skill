@@ -68,10 +68,18 @@ from top-level JSON properties or line-oriented text. Text labels may be plain
 (`- **Action:** send email`). Extracted values are normalized by removing
 field syntax, quotes, and Markdown emphasis.
 
+Top-level JSON field values must be strings or `null`. Objects, arrays,
+booleans, and numbers are reported as `Invalid type: <type>` instead of being
+coerced to text. Invalid fields are listed in JSON as
+`completeness.invalidFields` and in the Markdown Completeness section; they
+make the report incomplete and prevent `low` risk. JSON `null` remains a blank
+value. Line-oriented Markdown and text field values are strings by definition.
+
 Completeness is deterministic across both input formats. A supported field
 whose key or label is absent is rendered as `Not found`; a present field whose
 value is empty, whitespace-only, or JSON `null` is rendered as `Blank`. JSON
-results include `completeness.complete`, `missingFields`, and `blankFields`,
+results include `completeness.complete`, `missingFields`, `blankFields`, and
+`invalidFields`,
 and Markdown reports include the same information in a Completeness section.
 All five supported fields must contain a value for a report to be complete.
 
