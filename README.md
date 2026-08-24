@@ -7,7 +7,7 @@ This is a local-first agent skill package. It reads local fixtures, produces rev
 ## Quickstart
 
 ```bash
-npm install
+npm ci
 npm test
 npm run smoke
 node bin/cli.js --help
@@ -20,7 +20,7 @@ Run the full local release gate before opening a release PR:
 npm run release:check
 ```
 
-`npm run release:readiness` verifies package metadata, CLI bin metadata,
+`npm run release:readiness` verifies the committed lockfile, package metadata, CLI bin metadata,
 support docs, fixtures, examples, CI presence, and the npm files allowlist.
 `npm run package:smoke` verifies the bin target and dry-run tarball contents.
 
@@ -29,6 +29,7 @@ support docs, fixtures, examples, CI presence, and the npm files allowlist.
 Run the same checks used for release-readiness before publishing or opening a release PR:
 
 ```bash
+npm ci
 npm run check
 npm test
 npm run smoke

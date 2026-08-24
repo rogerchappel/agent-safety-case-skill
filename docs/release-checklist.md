@@ -4,7 +4,8 @@ Use this checklist before cutting a public release for agent-safety-case-skill.
 
 ## Required checks
 
-- Run `npm run release:check` from a clean checkout.
+- Run `npm ci` and `npm run release:check` from a clean checkout; do not use a mutable install fallback.
+- Confirm `npm run release:readiness` validates the committed lockfile against `package.json`.
 - Confirm the CI release-readiness job passes on the release PR.
 - Review the npm pack dry-run output for unexpected files or missing runtime assets.
 - Exercise the CLI smoke path for `agent-safety-case` with the checked-in fixture.
