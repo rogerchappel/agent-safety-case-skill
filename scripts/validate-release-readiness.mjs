@@ -17,6 +17,35 @@ requireField(pkg.homepage === 'https://github.com/rogerchappel/agent-safety-case
 requireField(pkg.bin?.['agent-safety-case'] === './bin/cli.js', 'CLI bin must point at ./bin/cli.js');
 requireField(Array.isArray(pkg.files), 'package files allowlist is required');
 
+let lock;
+try {
+  lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+} catch (error) {
+  failures.push(`package-lock.json must be present and valid JSON (${error.code ?? error.message})`);
+}
+
+if (lock) {
+  const root = lock.packages?.[''];
+  requireField(lock.lockfileVersion === 3, 'package-lock.json must use lockfileVersion 3');
+  requireField(Boolean(root), 'package-lock.json must describe the root package');
+  for (const field of ['name', 'version', 'license']) {
+    requireField(root?.[field] === pkg[field], `package-lock.json root ${field} must match package.json`);
+  }
+  for (const field of ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies', 'engines']) {
+    requireField(
+      JSON.stringify(root?.[field] ?? {}) === JSON.stringify(pkg[field] ?? {}),
+      `package-lock.json root ${field} must match package.json`
+    );
+  }
+  const normalizedBin = Object.fromEntries(
+    Object.entries(pkg.bin ?? {}).map(([name, target]) => [name, target.replace(/^\.\//, '')])
+  );
+  requireField(
+    JSON.stringify(root?.bin ?? {}) === JSON.stringify(normalizedBin),
+    'package-lock.json root bin must match package.json'
+  );
+}
+
 for (const file of [
   'README.md',
   'LICENSE',
@@ -27,7 +56,8 @@ for (const file of [
   'docs/RELEASE_CANDIDATE.md',
   'fixtures/send-plan.json',
   'examples/sample-output.md',
-  '.github/workflows/ci.yml'
+  '.github/workflows/ci.yml',
+  'package-lock.json'
 ]) {
   requireField(existsSync(file), `${file} must be present for release review`);
 }
