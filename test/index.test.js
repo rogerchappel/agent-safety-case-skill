@@ -309,3 +309,80 @@ test('CLI rejects unsupported format values with a usage error', () => {
   assert.match(result.stderr, /^agent-safety-case: unsupported format 'yaml'\n/);
   assert.match(result.stderr, /Supported formats: markdown, json/);
 });
+
+test('reports invalid non-string values in every top-level JSON field', () => {
+  const cases = [
+    ['evidence', ['tests passed', 42], 'array'],
+    ['metadata', { source: 'local' }, 'object'],
+    ['retries', 3, 'number'],
+    ['approved', false, 'boolean']
+  ];
+
+  for (const [field, value, type] of cases) {
+    const input = JSON.stringify({
+      action: 'inspect configuration',
+      target: 'local fixture',
+      intent: 'verify deterministic output',
+      rollback: 'discard local notes',
+      approval: 'not required for local read',
+      [field]: value
+    });
+    const result = analyzeText(input);
+
+    assert.equal(result.completeness.complete, false, field);
+    assert.ok(
+      result.completeness.invalidFields.some((entry) => entry.field === field && entry.type === type),
+      `${field} should be reported as invalid ${type} in ${JSON.stringify(result.completeness.invalidFields)}`
+    );
+    assert.equal(result.risk, 'review', field);
+    assert.ok(Object.keys(result.fields).length === 5, field);
+    assert.ok(!Object.hasOwn(result.fields, field), field);
+  }
+});
+
+test('reports a non-string extra field in Markdown diagnostics', () => {
+  const result = analyzeText(JSON.stringify({
+    action: 'inspect configuration',
+    target: 'local fixture',
+    intent: 'verify deterministic output',
+    rollback: 'discard local notes',
+    approval: 'not required for local read',
+    evidence: ['tests passed', 42]
+  }));
+  const markdown = toMarkdown(result);
+
+  assert.deepEqual(result.completeness.invalidFields, [{ field: 'evidence', type: 'array' }]);
+  assert.equal(result.completeness.complete, false);
+  assert.equal(result.risk, 'review');
+  assert.match(markdown, /- Invalid fields: evidence \(array\)/);
+});
+
+test('allows extra string top-level JSON fields without breaking completeness', () => {
+  const result = analyzeText(JSON.stringify({
+    action: 'inspect configuration',
+    target: 'local fixture',
+    intent: 'verify deterministic output',
+    rollback: 'discard local notes',
+    approval: 'not required for local read',
+    evidence: 'unit tests passed',
+    branch: 'feature/x'
+  }));
+
+  assert.deepEqual(result.completeness, {
+    complete: true,
+    missingFields: [],
+    blankFields: [],
+    invalidFields: []
+  });
+  assert.equal(result.risk, 'low');
+});
+
+test('reports non-object top-level JSON documents as incomplete', () => {
+  for (const input of ['[1, 2, 3]', '42', 'true', '"plain string"']) {
+    const result = analyzeText(input);
+
+    assert.equal(result.completeness.complete, false, input);
+    assert.deepEqual(result.completeness.invalidFields, [], input);
+    assert.equal(result.risk, 'review', input);
+  }
+});
