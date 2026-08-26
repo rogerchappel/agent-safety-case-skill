@@ -25,8 +25,10 @@
 ## Completeness Contract
 
 `Action`, `Target`, `Intent`, `Rollback`, and `Approval` are all required for a
-complete artifact. JSON exposes `completeness.complete`, `missingFields`, and
-`blankFields` in that fixed field order. Markdown exposes the same state under
-`## Completeness`. A complete artifact with no warning terms is `low` risk; one
-or two warning families or any incomplete artifact is `review`; three or more
-warning families is `high`.
+complete artifact. JSON exposes `completeness.complete`, `missingFields`,
+`blankFields`, and `invalidFields` in that fixed field order. Markdown exposes
+the same state under `## Completeness`. Any top-level JSON property whose value
+is not a string or `null` is an invalid field, is included in `invalidFields`,
+and makes the artifact incomplete. A complete artifact with no warning terms is
+`low` risk; one or two warning families or any incomplete artifact is
+`review`; three or more warning families is `high`.
