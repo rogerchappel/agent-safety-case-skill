@@ -74,7 +74,12 @@ booleans, and numbers are reported as `Invalid type: <type>` instead of being
 coerced to text. Invalid fields are listed in JSON as
 `completeness.invalidFields` and in the Markdown Completeness section; they
 make the report incomplete and prevent `low` risk. JSON `null` remains a blank
-value. Line-oriented Markdown and text field values are strings by definition.
+value. The rule applies to every top-level JSON property, not only the five
+supported fields: an object, array, boolean, or number anywhere in the top-level
+object is a reported invalid field. Extra top-level properties with string
+values (such as `"branch": "feature/x"`) are allowed and do not affect
+completeness. Line-oriented Markdown and text field values are strings by
+definition.
 
 Completeness is deterministic across both input formats. A supported field
 whose key or label is absent is rendered as `Not found`; a present field whose

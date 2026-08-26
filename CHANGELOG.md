@@ -5,6 +5,10 @@
 - Distinguish missing and blank safety-case fields, expose deterministic
   completeness diagnostics in JSON and Markdown, and prevent incomplete
   artifacts from being reported as low risk.
+- Validate every top-level JSON property: non-string values (objects, arrays,
+  booleans, numbers) anywhere in a JSON object are reported as invalid fields,
+  make the artifact incomplete, and cannot be low risk; the shipped fixture and
+  sample output now follow the documented contract.
 - Parse emphasized Markdown fields and recognize human-readable external send
   actions without matching benign substrings.
 - Recognize imperative pull-request merge and public repository creation
