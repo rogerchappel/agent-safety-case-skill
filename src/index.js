@@ -55,8 +55,8 @@ export function readInput(file) {
 }
 
 export function analyzeText(text) {
-  const fields = extractFields(text);
-  const completeness = assessCompleteness(fields);
+  const { fields, invalidJsonFields } = extractFields(text);
+  const completeness = assessCompleteness(fields, invalidJsonFields);
   const normalizedText = text.replace(/[_-]+/g, ' ');
   const warnings = WARNING_PATTERNS
     .filter(([, pattern]) => pattern.test(normalizedText))
@@ -112,8 +112,18 @@ function clean(value) {
 }
 
 function extractFields(text) {
-  const jsonFields = parseJsonFields(text);
+  const jsonEntries = parseJsonObject(text);
+  const jsonFields = new Map(
+    (jsonEntries ?? []).map(([key, value]) => [key.toLowerCase(), value])
+  );
   const fields = {};
+  const invalidJsonFields = [];
+
+  for (const [key, value] of jsonEntries ?? []) {
+    if (value !== null && typeof value !== 'string') {
+      invalidJsonFields.push({ field: key, type: jsonType(value) });
+    }
+  }
 
   for (const label of FIELD_LABELS) {
     const key = label.toLowerCase();
@@ -127,21 +137,19 @@ function extractFields(text) {
         : clean(rawValue) || 'Blank';
   }
 
-  return fields;
+  return { fields, invalidJsonFields };
 }
 
-function parseJsonFields(text) {
+function parseJsonObject(text) {
   try {
     const value = JSON.parse(text);
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return new Map(
-        Object.entries(value).map(([key, fieldValue]) => [key.toLowerCase(), fieldValue])
-      );
+      return Object.entries(value);
     }
   } catch {
     // Non-JSON Markdown and text inputs are parsed line by line below.
   }
-  return new Map();
+  return null;
 }
 
 function extractLineField(text, label) {
@@ -157,12 +165,10 @@ function extractLineField(text, label) {
   return undefined;
 }
 
-function assessCompleteness(fields) {
+function assessCompleteness(fields, invalidJsonFields = []) {
   const missingFields = FIELD_LABELS.filter((label) => fields[label] === 'Not found');
   const blankFields = FIELD_LABELS.filter((label) => fields[label] === 'Blank');
-  const invalidFields = FIELD_LABELS
-    .filter((label) => fields[label].startsWith('Invalid type: '))
-    .map((field) => ({ field, type: fields[field].slice('Invalid type: '.length) }));
+  const invalidFields = [...invalidJsonFields];
   return {
     complete: missingFields.length === 0 && blankFields.length === 0 && invalidFields.length === 0,
     missingFields,
