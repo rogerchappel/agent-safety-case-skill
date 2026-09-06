@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Validate options and positional arguments before honoring standalone CLI help.
 - Distinguish missing and blank safety-case fields, expose deterministic
   completeness diagnostics in JSON and Markdown, and prevent incomplete
   artifacts from being reported as low risk.
