@@ -258,6 +258,20 @@ test('prints usage help', () => {
   assert.match(output, /--format=markdown\|json/);
 });
 
+test('CLI validates options and arguments combined with help', () => {
+  const unknown = spawnSync('node', ['bin/cli.js', '--help', '--verbose'], { encoding: 'utf8' });
+  assert.equal(unknown.status, 2);
+  assert.equal(unknown.stdout, '');
+  assert.match(unknown.stderr, /^agent-safety-case: unknown option '--verbose'\n/);
+  assert.match(unknown.stderr, /Usage: agent-safety-case/);
+
+  const surplus = spawnSync('node', ['bin/cli.js', '--help', 'first.json', 'second.json'], { encoding: 'utf8' });
+  assert.equal(surplus.status, 2);
+  assert.equal(surplus.stdout, '');
+  assert.match(surplus.stderr, /^agent-safety-case: unexpected argument 'second\.json'\n/);
+  assert.match(surplus.stderr, /Usage: agent-safety-case/);
+});
+
 test('CLI preserves Markdown and JSON output modes', () => {
   const markdown = spawnSync('node', ['bin/cli.js', 'fixtures/send-plan.json'], { encoding: 'utf8' });
   assert.equal(markdown.status, 0);
