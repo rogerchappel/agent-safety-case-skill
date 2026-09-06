@@ -4,16 +4,14 @@ import { buildSafetyCase, toMarkdown } from '../src/index.js';
 const args = process.argv.slice(2);
 const usage = 'Usage: agent-safety-case <file> [--format=markdown|json] [--json]';
 
-if (args.includes('--help')) {
-  console.log(usage);
-  process.exit(0);
-}
-
 let file;
 let format = 'markdown';
+let help = false;
 
 for (const arg of args) {
-  if (arg === '--json') {
+  if (arg === '--help') {
+    help = true;
+  } else if (arg === '--json') {
     format = 'json';
   } else if (arg.startsWith('--format=')) {
     const value = arg.slice('--format='.length);
@@ -35,6 +33,16 @@ for (const arg of args) {
   } else {
     file = arg;
   }
+}
+
+if (help) {
+  if (file) {
+    console.error(`agent-safety-case: unexpected argument '${file}'`);
+    console.error(usage);
+    process.exit(2);
+  }
+  console.log(usage);
+  process.exit(0);
 }
 
 if (!file) {
