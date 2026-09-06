@@ -51,6 +51,7 @@ node bin/cli.js fixtures/send-plan.json --format=json
 ```
 
 The default format is Markdown. `--json` is an alias for `--format=json`.
+`--help` prints usage and exits successfully only as a standalone invocation.
 Unknown options, unsupported format values, and invalid invocation syntax print
 a diagnostic to stderr and exit with status 2.
 
