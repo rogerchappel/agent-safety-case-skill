@@ -10,12 +10,21 @@ function requireField(condition, message) {
 requireField(pkg.name === 'agent-safety-case-skill', 'package name must remain agent-safety-case-skill');
 requireField(pkg.version === '0.1.0', 'release candidate version must be 0.1.0');
 requireField(pkg.license === 'MIT', 'package must declare the MIT license');
-requireField(pkg.engines?.node === '>=20', 'Node engine must document the runtime baseline');
+requireField(pkg.engines?.node === '>=20 <27', 'Node engine must match the documented Node.js support range (>=20 <27)');
 requireField(pkg.repository?.url === 'git+https://github.com/rogerchappel/agent-safety-case-skill.git', 'repository metadata must point at GitHub');
 requireField(pkg.bugs?.url === 'https://github.com/rogerchappel/agent-safety-case-skill/issues', 'bugs URL must point at GitHub issues');
 requireField(pkg.homepage === 'https://github.com/rogerchappel/agent-safety-case-skill#readme', 'homepage must point at the README');
 requireField(pkg.bin?.['agent-safety-case'] === './bin/cli.js', 'CLI bin must point at ./bin/cli.js');
 requireField(Array.isArray(pkg.files), 'package files allowlist is required');
+
+const ciWorkflow = readFileSync('.github/workflows/ci.yml', 'utf8');
+const ciNodeVersions = ciWorkflow.match(/node-version:\s*\[([^\]]+)\]/)?.[1]
+  ?.split(',')
+  .map((version) => Number(version.trim()));
+requireField(
+  JSON.stringify(ciNodeVersions) === JSON.stringify([20, 24, 26]),
+  'CI Node matrix must match the documented validation versions (20, 24, 26)'
+);
 
 let lock;
 try {

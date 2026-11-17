@@ -2,6 +2,10 @@
 
 Use this checklist before cutting a public release for agent-safety-case-skill.
 
+## Runtime support
+
+The package supports Node.js `>=20 <27`. CI runs the release-readiness checks on Node.js 20, 24, and 26; these are the explicitly validated matrix versions, not an exhaustive list of every supported runtime version.
+
 ## Required checks
 
 - Run `npm ci` and `npm run release:check` from a clean checkout; do not use a mutable install fallback.

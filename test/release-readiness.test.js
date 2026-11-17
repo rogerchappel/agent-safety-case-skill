@@ -27,6 +27,18 @@ test('release readiness rejects a missing lockfile', (t) => {
   assert.match(result.stderr, /package-lock\.json must be present/);
 });
 
+test('release readiness rejects a CI Node matrix that differs from the documented support contract', (t) => {
+  const cwd = readinessFixture();
+  t.after(() => rmSync(cwd, { recursive: true, force: true }));
+  const workflowPath = join(cwd, '.github/workflows/ci.yml');
+  const workflow = readFileSync(workflowPath, 'utf8');
+  writeFileSync(workflowPath, workflow.replace('node-version: [20, 24, 26]', 'node-version: [20, 24]'));
+
+  const result = runReadiness(cwd);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /CI Node matrix must match/);
+});
+
 test('release readiness rejects a stale lockfile root', (t) => {
   const cwd = readinessFixture();
   t.after(() => rmSync(cwd, { recursive: true, force: true }));
