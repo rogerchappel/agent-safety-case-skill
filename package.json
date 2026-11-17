@@ -47,6 +47,6 @@
   },
   "homepage": "https://github.com/rogerchappel/agent-safety-case-skill#readme",
   "engines": {
-    "node": ">=20"
+    "node": ">=20 <27"
   }
 }
