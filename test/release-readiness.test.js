@@ -32,7 +32,7 @@ test('release readiness rejects a CI Node matrix that differs from the documente
   t.after(() => rmSync(cwd, { recursive: true, force: true }));
   const workflowPath = join(cwd, '.github/workflows/ci.yml');
   const workflow = readFileSync(workflowPath, 'utf8');
-  writeFileSync(workflowPath, workflow.replace('node-version: [20, 24, 26]', 'node-version: [20, 24]'));
+  writeFileSync(workflowPath, workflow.replace('node-version: [20, 22, 24, 26]', 'node-version: [20, 24]'));
 
   const result = runReadiness(cwd);
   assert.equal(result.status, 1);
