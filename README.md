@@ -6,7 +6,7 @@ This is a local-first agent skill package. It reads local fixtures, produces rev
 
 ## Node.js support
 
-Node.js 20 and later releases up to (but not including) 27 are supported. The CI release checks run on Node.js 20, 24, and 26; other versions in the declared range are supported by the package engine contract but are not individually included in the CI matrix.
+Node.js 20 and later releases up to (but not including) 27 are supported. CI runs the release checks on every supported major line: Node.js 20, 21, 22, 23, 24, 25, and 26.
 
 ## Quickstart
 

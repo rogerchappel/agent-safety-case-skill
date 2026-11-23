@@ -22,8 +22,8 @@ const ciNodeVersions = ciWorkflow.match(/node-version:\s*\[([^\]]+)\]/)?.[1]
   ?.split(',')
   .map((version) => Number(version.trim()));
 requireField(
-  JSON.stringify(ciNodeVersions) === JSON.stringify([20, 22, 24, 26]),
-  'CI Node matrix must match the documented validation versions (20, 22, 24, 26)'
+  JSON.stringify(ciNodeVersions) === JSON.stringify([20, 21, 22, 23, 24, 25, 26]),
+  'CI Node matrix must match the supported Node.js major versions (20, 21, 22, 23, 24, 25, 26)'
 );
 
 let lock;
