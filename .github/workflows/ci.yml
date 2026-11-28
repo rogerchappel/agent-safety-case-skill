@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  release-readiness:
-    name: Release readiness (Node ${{ matrix.node-version }})
+  checks:
+    name: Checks (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -32,5 +32,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run release checks
-        run: npm run release:check
+      - name: Run tests and lint
+        run: npm run lint && npm test
